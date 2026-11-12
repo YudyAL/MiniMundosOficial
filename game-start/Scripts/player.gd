@@ -106,7 +106,7 @@ func take_damage(amount: int, from_pos: Vector3) -> void:
 	knockback = away.normalized() * 6.0
 	invulnerable = true
 	if health <= 0:
-		get_tree().reload_current_scene()   # derrota simple: reinicia la isla
+		Game.lose()
 		return
 	await get_tree().create_timer(1.0).timeout
 	invulnerable = false

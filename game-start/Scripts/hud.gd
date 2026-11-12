@@ -6,6 +6,7 @@ var label_destellos := Label.new()
 var label_puntos := Label.new()
 var label_racha := Label.new()
 var bar := ProgressBar.new()
+var label_vidas := Label.new()
 
 func _ready() -> void:
 	var estilo := StyleBoxFlat.new()
@@ -19,7 +20,7 @@ func _ready() -> void:
 	caja.add_theme_constant_override("separation", 6)
 	panel.add_child(caja)
 
-	for l in [label_puntos, label_destellos, label_racha]:
+	for l in [label_puntos, label_destellos, label_racha,label_vidas]:
 		l.add_theme_font_size_override("font_size", 22)
 		l.add_theme_color_override("font_color", Color(1, 0.95, 0.7))
 		l.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
@@ -47,3 +48,6 @@ func _process(_delta: float) -> void:
 	label_racha.visible = Game.streak > 0
 	bar.visible = Game.streak_left > 0.0
 	bar.value = Game.streak_left
+	var p := get_tree().get_first_node_in_group("player")
+	if p:
+		label_vidas.text = "Vida  %d / %d" % [p.health, p.max_health]
