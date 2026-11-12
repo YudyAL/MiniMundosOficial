@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cgql7uuppssjy"]
 
 [ext_resource type="PackedScene" uid="uid://doid65grpgj35" path="res://Escenas/player.tscn" id="1_c7eiy"]
+[ext_resource type="PackedScene" uid="uid://41nbajexrivl" path="res://Escenas/Destello.tscn" id="2_ciol1"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kh5iw"]
 
@@ -40,3 +41,6 @@ shape = SubResource("BoxShape3D_u5bk5")
 
 [node name="Player" parent="." unique_id=449378462 instance=ExtResource("1_c7eiy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6745553, -4.5, -7.8518887)
+
+[node name="Destello" parent="." unique_id=1384490060 instance=ExtResource("2_ciol1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3640747, -4.5, -9.929248)

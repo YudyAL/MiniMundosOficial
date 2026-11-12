@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://41nbajexrivl"]
+
+[ext_resource type="Script" uid="uid://b5a23tp4ksxd2" path="res://Scripts/destello.gd" id="1_hkvu0"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_u5bk5"]
+radius = 0.3
+
+[sub_resource type="SphereMesh" id="SphereMesh_u5bk5"]
+radius = 0.3
+
+[node name="Destello" type="CharacterBody3D" unique_id=1384490060]
+script = ExtResource("1_hkvu0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=465232897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+shape = SubResource("SphereShape3D_u5bk5")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1436106228]
+mesh = SubResource("SphereMesh_u5bk5")
