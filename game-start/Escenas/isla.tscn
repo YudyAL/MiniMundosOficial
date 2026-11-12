@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://doid65grpgj35" path="res://Escenas/player.tscn" id="1_c7eiy"]
 [ext_resource type="PackedScene" uid="uid://41nbajexrivl" path="res://Escenas/Destello.tscn" id="2_ciol1"]
 [ext_resource type="Script" uid="uid://b6eep48vsby3h" path="res://Scripts/muro.gd" id="3_q8i56"]
+[ext_resource type="Script" uid="uid://br8jr4vvqfnpl" path="res://Scripts/destello_spawner.gd" id="4_casnb"]
 [ext_resource type="PackedScene" uid="uid://b1gt14crg63p0" path="res://Assets/Bosque/rock_tallF.glb" id="4_u2c6w"]
 [ext_resource type="PackedScene" uid="uid://yfv5p3ixqoif" path="res://Assets/Bosque/rock_tallG.glb" id="5_pbgq2"]
 [ext_resource type="PackedScene" uid="uid://dsfm06qpcjjwp" path="res://Assets/Bosque/tree_thin.glb" id="6_b7kie"]
@@ -54,6 +55,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3640747, -4.5, -9.929248)
 [node name="Muro" type="Node3D" parent="." unique_id=1309687750]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
 script = ExtResource("3_q8i56")
-min_scale = 3.0
-max_scale = 4.5
 pieces = Array[PackedScene]([ExtResource("4_u2c6w"), ExtResource("5_pbgq2"), ExtResource("6_b7kie"), ExtResource("7_a5so0"), ExtResource("8_g2hm4")])
+
+[node name="DestelloSpawner" type="Node3D" parent="." unique_id=508979621]
+script = ExtResource("4_casnb")
+destello_scene = ExtResource("2_ciol1")
