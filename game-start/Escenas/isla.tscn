@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://dsfm06qpcjjwp" path="res://Assets/Bosque/tree_thin.glb" id="6_b7kie"]
 [ext_resource type="PackedScene" uid="uid://cagtvxix2oy1q" path="res://Assets/Bosque/tree_thin_dark.glb" id="7_a5so0"]
 [ext_resource type="PackedScene" uid="uid://tpmfrp5wrxwx" path="res://Assets/Bosque/tree_thin_fall.glb" id="8_g2hm4"]
+[ext_resource type="Script" uid="uid://bkfkoflrxlina" path="res://Scripts/hud.gd" id="10_pbgq2"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kh5iw"]
 
@@ -49,9 +50,6 @@ shape = SubResource("BoxShape3D_u5bk5")
 [node name="Player" parent="." unique_id=449378462 instance=ExtResource("1_c7eiy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6745553, -4.5, -7.8518887)
 
-[node name="Destello" parent="." unique_id=1384490060 instance=ExtResource("2_ciol1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.3640747, -4.5, -9.929248)
-
 [node name="Muro" type="Node3D" parent="." unique_id=1309687750]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -15)
 script = ExtResource("3_q8i56")
@@ -60,3 +58,6 @@ pieces = Array[PackedScene]([ExtResource("4_u2c6w"), ExtResource("5_pbgq2"), Ext
 [node name="DestelloSpawner" type="Node3D" parent="." unique_id=508979621]
 script = ExtResource("4_casnb")
 destello_scene = ExtResource("2_ciol1")
+
+[node name="hub" type="CanvasLayer" parent="." unique_id=1198105528]
+script = ExtResource("10_pbgq2")
