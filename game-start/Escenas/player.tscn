@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://doid65grpgj35"]
+
+[ext_resource type="Script" uid="uid://2xjuym2tmgoa" path="res://Scripts/player.gd" id="1_i8vih"]
+[ext_resource type="PackedScene" uid="uid://bi15t5s4xd3in" path="res://Assets/Personajes/Model/characterMedium.fbx" id="2_qgqwx"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u5bk5"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_u5bk5"]
+
+[node name="Player" type="CharacterBody3D" unique_id=449378462]
+script = ExtResource("1_i8vih")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1396949337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_u5bk5")
+
+[node name="Model" type="Node3D" parent="." unique_id=663396494]
+
+[node name="characterMedium" parent="Model" unique_id=766551011 instance=ExtResource("2_qgqwx")]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="." unique_id=911812420]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+spring_length = 3.5
+
+[node name="Camera3D" type="Camera3D" parent="SpringArm3D" unique_id=1562239845]
+
+[node name="SpinArea" type="Area3D" parent="." unique_id=496166616]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="SpinArea" unique_id=1362113187]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("SphereShape3D_u5bk5")

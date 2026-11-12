@@ -1,5 +1,7 @@
 [gd_scene format=3 uid="uid://cgql7uuppssjy"]
 
+[ext_resource type="PackedScene" uid="uid://doid65grpgj35" path="res://Escenas/player.tscn" id="1_c7eiy"]
+
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kh5iw"]
 
 [sub_resource type="Sky" id="Sky_kddjp"]
@@ -36,5 +38,5 @@ mesh = SubResource("BoxMesh_u5bk5")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Terreno" unique_id=1648713317]
 shape = SubResource("BoxShape3D_u5bk5")
 
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1352280873]
-transform = Transform3D(1, 0, 0, 0, 0.90630776, 0.42261827, 0, -0.42261827, 0.90630776, 0, 10, 20)
+[node name="Player" parent="." unique_id=449378462 instance=ExtResource("1_c7eiy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.6745553, -4.5, -7.8518887)
