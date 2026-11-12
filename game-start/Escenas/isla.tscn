@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://cagtvxix2oy1q" path="res://Assets/Bosque/tree_thin_dark.glb" id="7_a5so0"]
 [ext_resource type="PackedScene" uid="uid://tpmfrp5wrxwx" path="res://Assets/Bosque/tree_thin_fall.glb" id="8_g2hm4"]
 [ext_resource type="Script" uid="uid://bkfkoflrxlina" path="res://Scripts/hud.gd" id="10_pbgq2"]
+[ext_resource type="Script" uid="uid://geamahthj6j8" path="res://Scripts/resultado.gd" id="11_b7kie"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kh5iw"]
 
@@ -61,3 +62,6 @@ destello_scene = ExtResource("2_ciol1")
 
 [node name="hub" type="CanvasLayer" parent="." unique_id=1198105528]
 script = ExtResource("10_pbgq2")
+
+[node name="Resultado" type="CanvasLayer" parent="." unique_id=431379059]
+script = ExtResource("11_b7kie")

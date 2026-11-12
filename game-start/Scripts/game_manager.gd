@@ -1,7 +1,9 @@
 extends Node
 
 
-signal won   # se emite al calmar los 12 Destellos
+signal won
+signal lost
+var result_won := false
 
 const TOTAL_DESTELLOS := 12
 const STREAK_WINDOW := 5.0   # segundos para encadenar la racha
@@ -32,6 +34,7 @@ func register_calm() -> void:
 	score += BASE_POINTS * streak   # más racha = más puntos
 	if calmed >= TOTAL_DESTELLOS and not finished:
 		finished = true
+		result_won = true
 		won.emit()
 
 func reset() -> void:
@@ -41,3 +44,19 @@ func reset() -> void:
 	calmed = 0
 	streak_left = 0.0
 	finished = false
+	result_won = false
+	
+func lose() -> void:
+	if finished:
+		return
+	finished = true
+	lost.emit()
+
+func medal() -> String:
+	if not result_won:
+		return "Sin medalla"
+	if score >= 5000:
+		return "Oro"
+	if score >= 2500:
+		return "Plata"
+	return "Bronce"
