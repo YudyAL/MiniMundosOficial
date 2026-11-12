@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://cgql7uuppssjy"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_kh5iw"]
+
+[sub_resource type="Sky" id="Sky_kddjp"]
+sky_material = SubResource("ProceduralSkyMaterial_kh5iw")
+
+[sub_resource type="Environment" id="Environment_u5bk5"]
+background_mode = 2
+sky = SubResource("Sky_kddjp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kddjp"]
+albedo_color = Color(0.5411765, 0.9098039, 0.10980392, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_u5bk5"]
+material = SubResource("StandardMaterial3D_kddjp")
+size = Vector3(60, 1, 60)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_u5bk5"]
+size = Vector3(60, 1, 60)
+
+[node name="Isla" type="Node3D" unique_id=1948557385]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1114641584]
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=67418441]
+environment = SubResource("Environment_u5bk5")
+
+[node name="Terreno" type="StaticBody3D" parent="." unique_id=207943384]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Terreno" unique_id=556309312]
+mesh = SubResource("BoxMesh_u5bk5")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Terreno" unique_id=1648713317]
+shape = SubResource("BoxShape3D_u5bk5")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1352280873]
+transform = Transform3D(1, 0, 0, 0, 0.90630776, 0.42261827, 0, -0.42261827, 0.90630776, 0, 10, 20)
