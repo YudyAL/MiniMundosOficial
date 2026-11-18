@@ -357,7 +357,7 @@ func _morir() -> void:
 	Formas.estallido(get_parent(), global_position + Vector3(0, 0.8 * escala, 0), Color(0.65, 0.25, 1.0), 120 if es_jefe else 50, 0.1 * escala)
 	var tw := create_tween()
 	tw.tween_property(modelo, "scale", modelo.scale * 1.35, 0.12)
-	tw.tween_property(modelo, "scale", Vector3.ZERO, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
+	tw.tween_property(modelo, "scale", Vector3.ONE * 0.01, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	tw.parallel().tween_property(modelo, "rotation:y", modelo.rotation.y + TAU, 0.35)
 	tw.finished.connect(queue_free)
 

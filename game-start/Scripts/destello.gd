@@ -99,6 +99,6 @@ func on_spin(_from_pos: Vector3, _push: float) -> void:
 	var tw := create_tween()
 	tw.tween_property(visual, "position:y", visual.position.y + 1.6, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.parallel().tween_property(visual, "scale", Vector3.ONE * 1.6, 0.35)
-	tw.tween_property(visual, "scale", Vector3.ZERO, 0.25)
+	tw.tween_property(visual, "scale", Vector3.ONE * 0.01, 0.25)
 	tw.finished.connect(queue_free)
 	Game.register_calm()
