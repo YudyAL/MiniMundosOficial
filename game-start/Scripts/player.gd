@@ -16,6 +16,7 @@ var is_attacking := false
 var can_attack := true
 var invulnerable := false
 var knockback := Vector3.ZERO
+var controls_locked := false   # true mientras un lanzador estelar mueve a Lumi
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @onready var spring_arm: SpringArm3D = $SpringArm3D
@@ -51,6 +52,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _physics_process(delta: float) -> void:
+	if controls_locked:
+		return
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 
@@ -94,6 +97,10 @@ func _spin_attack() -> void:
 	for body in spin_area.get_overlapping_bodies():
 		if body.has_method("on_spin"):
 			body.on_spin(global_position, push_distance)
+	# También activa áreas (por ejemplo, los lanzadores estelares)
+	for area in spin_area.get_overlapping_areas():
+		if area.has_method("on_spin"):
+			area.on_spin(global_position, push_distance)
 	await get_tree().create_timer(attack_cooldown).timeout
 	can_attack = true
 
@@ -105,11 +112,22 @@ func take_damage(amount: int, from_pos: Vector3) -> void:
 	away.y = 0.0
 	knockback = away.normalized() * 6.0
 	invulnerable = true
+	Game.jugador_herido.emit()
+	_parpadeo()
 	if health <= 0:
 		Game.lose()
 		return
 	await get_tree().create_timer(1.0).timeout
 	invulnerable = false
+
+func _parpadeo() -> void:
+	# Lumi parpadea mientras es invulnerable
+	var tw := create_tween()
+	for i in 5:
+		tw.tween_callback(func(): model.visible = false)
+		tw.tween_interval(0.09)
+		tw.tween_callback(func(): model.visible = true)
+		tw.tween_interval(0.09)
 
 func _play(anim_name: String) -> void:
 	if anim == null:
