@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bi15t5s4xd3in" path="res://Assets/Personajes/Model/characterMedium.fbx" id="2_qgqwx"]
 [ext_resource type="Animation" uid="uid://ruvnxn0kpfn1" path="res://Assets/Personajes/Animations/idle.res" id="3_6njrx"]
 [ext_resource type="Animation" uid="uid://bl52160maksn3" path="res://Assets/Personajes/Animations/run.res" id="4_cgfde"]
+[ext_resource type="Script" path="res://Scripts/lumi_estilo.gd" id="5_estilo"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_u5bk5"]
 radius = 0.4
@@ -44,3 +45,6 @@ spring_length = 3.5
 [node name="CollisionShape3D" type="CollisionShape3D" parent="SpinArea" unique_id=1362113187]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("SphereShape3D_u5bk5")
+
+[node name="Estilo" type="Node3D" parent="." unique_id=581932746]
+script = ExtResource("5_estilo")
