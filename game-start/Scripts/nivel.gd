@@ -12,6 +12,7 @@ const Ambiente = preload("res://Scripts/ambiente_galaxia.gd")
 const IslaFlotante = preload("res://Scripts/isla_flotante.gd")
 const Lanzador = preload("res://Scripts/lanzador_estelar.gd")
 const GranEstrella = preload("res://Scripts/gran_estrella.gd")
+const CristalCongelante = preload("res://Scripts/cristal_congelante.gd")
 const Muro = preload("res://Scripts/muro.gd")
 const ESCENA_DESTELLO := preload("res://Escenas/Destello.tscn")
 const ESCENA_ENEMIGO := preload("res://Escenas/Enemigo.tscn")
@@ -52,11 +53,12 @@ func _construir_nivel() -> void:
 	claro.spawn_local = Vector3(0, 0.3, 7)
 	var d_claro := [Vector3(-7, 0, 3), Vector3(8, 0, 2), Vector3(-5, 0, -6), Vector3(5, 0, -8)]
 	var e_claro := [Vector3(1, 0, -4)]
-	var libres_claro := d_claro + e_claro + [Vector3(0, 0, 7), Vector3(0, 0, 4), Vector3(0, 0, -11), Vector3(0, 0, -8), Vector3(3, 0, 5)]
+	var libres_claro := d_claro + e_claro + [Vector3(0, 0, 7), Vector3(0, 0, 4), Vector3(0, 0, -11), Vector3(0, 0, -8), Vector3(3, 0, 5), Vector3(-4, 0, 6)]
 	claro.poblar(10, ["redondo", "redondo", "pino", "glb"], libres_claro, 0.9, 1.3)
 	claro.agregar_luciernagas(50)
 	_destellos(claro, d_claro, [1, 3])
 	_enemigos(claro, e_claro)
+	_cristal(claro, Vector3(-4, 0, 6))
 	isla_actual = claro
 
 	# ---------- 2. Bosque de Hongos ----------
@@ -66,12 +68,13 @@ func _construir_nivel() -> void:
 	var d_hongos := [Vector3(-6, 0, 3), Vector3(7, 0, 3), Vector3(-5, 0, -6), Vector3(0, 0, -8)]
 	var e_hongos := [Vector3(-3, 0, -1), Vector3(4, 0, -2)]
 	var lanz_hongos := Vector3(5, 0, -6)
-	var libres_hongos := d_hongos + e_hongos + [lanz_hongos, Vector3(0, 0, 10), Vector3(0, 0, 7), Vector3(0, 0, 4)]
+	var libres_hongos := d_hongos + e_hongos + [lanz_hongos, Vector3(0, 0, 10), Vector3(0, 0, 7), Vector3(0, 0, 4), Vector3(3, 0, 7)]
 	hongos.poblar(5, ["hongo_gigante"], libres_hongos, 1.0, 1.4, 3.5)
 	hongos.poblar(16, ["hongo"], libres_hongos, 0.8, 1.5, 1.4)
 	hongos.poblar(2, ["redondo", "cristal"], libres_hongos, 0.9, 1.1)
 	_destellos(hongos, d_hongos, [0, 2])
 	_enemigos(hongos, e_hongos)
+	_cristal(hongos, Vector3(3, 0, 7))
 
 	# ---------- 3. Arboleda Oculta ----------
 	var arboleda := _isla("Arboleda Oculta", Vector3(46, 9, -64), 16.0, [], 33,
@@ -81,7 +84,7 @@ func _construir_nivel() -> void:
 			Vector3(-7, 0, -8), Vector3(2, 0, -7), Vector3(-2, 0, -13)]            # escondidos detrás
 	var e_arboleda := [Vector3(-4, 0, 9), Vector3(4, 0, -11)]
 	var lanz_arboleda := Vector3(9, 0, -10)
-	var libres_arboleda := d_arboleda + e_arboleda + [lanz_arboleda, Vector3(0, 0, 12), Vector3(0, 0, 9)]
+	var libres_arboleda := d_arboleda + e_arboleda + [lanz_arboleda, Vector3(0, 0, 12), Vector3(0, 0, 9), Vector3(-3, 0, 11), Vector3(7, 0, -6)]
 	for x in range(-13, 14, 2):   # franja del muro de árboles y sus pasos laterales
 		libres_arboleda.append(Vector3(x, 0, -2))
 	arboleda.poblar(16, ["redondo", "pino", "pino", "glb", "cristal"], libres_arboleda, 0.9, 1.4)
@@ -102,6 +105,8 @@ func _construir_nivel() -> void:
 	add_child(muro)
 	_destellos(arboleda, d_arboleda, [0, 4])
 	_enemigos(arboleda, e_arboleda)
+	_cristal(arboleda, Vector3(-3, 0, 11))
+	_cristal(arboleda, Vector3(7, 0, -6))
 
 	# ---------- 4. Cima Estelar ----------
 	var cima := _isla("Cima Estelar", Vector3(0, 18, -104), 14.0, [], 44,
@@ -114,12 +119,13 @@ func _construir_nivel() -> void:
 	var pos_jefe := Vector3(2, 0, -6)
 	var lanz_cima := Vector3(-8, 0, 8)
 	var libres_cima := d_cima + e_cima + [pos_estrella, pos_jefe, lanz_cima, Vector3(4, 0, 9),
-			Vector3(0, 0, 3), Vector3(3, 0, -3), Vector3(-3, 0, -3), Vector3(0, 0, -5)]
+			Vector3(0, 0, 3), Vector3(3, 0, -3), Vector3(-3, 0, -3), Vector3(0, 0, -5), Vector3(-2, 0, 9)]
 	cima.agregar_cristales_grandes(5, libres_cima)
 	cima.poblar(6, ["cristal", "cristal", "pino"], libres_cima, 0.9, 1.3)
 	_destellos(cima, d_cima, [1])
 	_enemigos(cima, e_cima)
 	_enemigo(cima.position + pos_jefe, true)
+	_cristal(cima, Vector3(-2, 0, 9))
 	var estrella := GranEstrella.new()
 	estrella.position = cima.position + pos_estrella
 	add_child(estrella)
@@ -169,13 +175,19 @@ func _enemigo(pos: Vector3, jefe: bool) -> void:
 	if jefe:
 		e.set("es_jefe", true)
 		e.set("max_health", 8)
-		e.set("speed", 4.2)
+		e.set("speed", 3.6)
 		e.set("detect_range", 13.0)
 		e.set("attack_range", 2.6)
 		e.set("radio_patrulla", 3.0)
 		e.set("correa", 12.0)
 	e.position = pos + Vector3(0, 0.2, 0)
 	add_child(e)
+
+
+func _cristal(isla: IslaFlotante, local: Vector3) -> void:
+	var c := CristalCongelante.new()
+	c.position = isla.position + local
+	add_child(c)
 
 
 func _lanzador(pos: Vector3, destino: Vector3, altura: float, color: Color) -> void:

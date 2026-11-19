@@ -6,13 +6,15 @@ extends CharacterBody3D
 
 const Formas = preload("res://Scripts/formas.gd")
 
-enum Estado { PATRULLA, ALERTA, PERSIGUE, CARGA, EMBESTIDA, ATURDIDO, MUERTO }
+enum Estado { PATRULLA, ALERTA, PERSIGUE, CARGA, EMBESTIDA, ATURDIDO, CONGELADO, MUERTO }
 
-@export var speed := 3.5
-@export var detect_range := 10.0
+@export var speed := 3.0
+@export var detect_range := 8.0
 @export var attack_range := 1.6
 @export var damage := 1
-@export var attack_cooldown := 1.0
+@export var attack_cooldown := 1.6
+@export var tiempo_carga := 0.75     # aviso antes de embestir (más alto = más fácil esquivar)
+@export var tiempo_aturdido := 1.8   # cuánto queda mareada tras un giro de Lumi
 @export var max_health := 3
 @export var es_jefe := false
 @export var radio_patrulla := 4.0
@@ -39,6 +41,9 @@ var mat_cuerpo: StandardMaterial3D
 var mat_ojos: StandardMaterial3D
 var puntos_vida: Node3D
 var alerta: Label3D
+var mareo: Node3D             # estrellitas girando sobre la cabeza
+var hielo: MeshInstance3D     # caparazón de hielo cuando está congelada
+var t_congelado := 0.0
 
 
 func _ready() -> void:
@@ -189,6 +194,27 @@ func _construir_modelo() -> void:
 	alerta.visible = false
 	add_child(alerta)
 
+	# Estrellitas de mareo
+	mareo = Node3D.new()
+	mareo.position.y = 1.75 * escala
+	mareo.visible = false
+	add_child(mareo)
+	var mat_mareo := Formas.mat(Color(1.0, 0.9, 0.35), 3.0, 0.0)
+	mat_mareo.cull_mode = BaseMaterial3D.CULL_DISABLED
+	for i in 3:
+		var a := TAU * i / 3.0
+		var e := Formas.malla(Formas.estrella_mesh(5, 0.12, 0.05, 0.03), mat_mareo, Vector3(sin(a), 0, cos(a)) * 0.4 * escala)
+		e.scale = Vector3.ONE * escala
+		mareo.add_child(e)
+
+	# Caparazón de hielo
+	hielo = Formas.esfera(0.85, Formas.mat_transparente(Color(0.55, 0.85, 1.0, 0.45)), Vector3(0, 0.8, 0), 20)
+	hielo.scale = Vector3.ONE * escala
+	hielo.position.y *= escala
+	hielo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	hielo.visible = false
+	add_child(hielo)
+
 
 func _construir_vida() -> void:
 	puntos_vida = Node3D.new()
@@ -255,7 +281,7 @@ func _physics_process(delta: float) -> void:
 		Estado.CARGA:
 			# Se echa hacia atrás y brilla: aviso de que va a embestir
 			_mirar(to_player, delta, 12.0)
-			if t_estado > (0.6 if es_jefe else 0.45):
+			if t_estado > (tiempo_carga + 0.15 if es_jefe else tiempo_carga):
 				dir_embestida = to_player.normalized() if dist > 0.05 else global_transform.basis.z
 				_cambiar(Estado.EMBESTIDA)
 		Estado.EMBESTIDA:
@@ -266,8 +292,11 @@ func _physics_process(delta: float) -> void:
 				enfriamiento = maxf(enfriamiento, attack_cooldown)
 				_cambiar(Estado.PERSIGUE)
 		Estado.ATURDIDO:
-			if t_estado > 0.7:
+			if t_estado > (tiempo_aturdido * 0.6 if es_jefe else tiempo_aturdido):
 				_cambiar(Estado.PERSIGUE)
+		Estado.CONGELADO:
+			if t_estado > t_congelado:
+				_descongelar()
 
 	velocity.x = deseada.x + empuje.x
 	velocity.z = deseada.z + empuje.z
@@ -284,6 +313,7 @@ func _physics_process(delta: float) -> void:
 func _cambiar(nuevo: Estado) -> void:
 	estado = nuevo
 	t_estado = 0.0
+	mareo.visible = nuevo == Estado.ATURDIDO
 	match nuevo:
 		Estado.ALERTA:
 			velocity.y = 4.5   # saltito de sorpresa
@@ -334,14 +364,36 @@ func on_spin(from_pos: Vector3, push: float) -> void:
 	_actualizar_vida()
 	if health <= 0:
 		_morir()
-	else:
+	elif estado != Estado.CONGELADO:
 		_cambiar(Estado.ATURDIDO)
+
+
+# La llama el Cristal Congelante: la Sombra queda quieta y no hace daño.
+func congelar(segundos: float) -> void:
+	if estado == Estado.MUERTO:
+		return
+	t_congelado = segundos
+	_cambiar(Estado.CONGELADO)
+	hielo.visible = true
+	hielo.scale = Vector3.ONE * escala * 0.3
+	var tw := create_tween()
+	tw.tween_property(hielo, "scale", Vector3.ONE * escala, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	mat_cuerpo.emission = Color(0.4, 0.75, 1.0)
+	mat_cuerpo.emission_energy_multiplier = 0.8
+
+
+func _descongelar() -> void:
+	hielo.visible = false
+	mat_cuerpo.emission = Color(1, 1, 1)
+	mat_cuerpo.emission_energy_multiplier = 0.0
+	Formas.estallido(get_parent(), global_position + Vector3(0, 0.9 * escala, 0), Color(0.6, 0.9, 1.0), 20)
+	_cambiar(Estado.ATURDIDO)
 
 
 func _golpe_visual() -> void:
 	mat_cuerpo.emission_energy_multiplier = 2.5
 	var tw := create_tween()
-	tw.tween_property(mat_cuerpo, "emission_energy_multiplier", 0.0, 0.3)
+	tw.tween_property(mat_cuerpo, "emission_energy_multiplier", 0.8 if estado == Estado.CONGELADO else 0.0, 0.3)
 	pivote.scale = Vector3(1.35, 0.7, 1.35)
 	Formas.estallido(get_parent(), global_position + Vector3(0, 0.9 * escala, 0), Color(1.0, 0.9, 0.6), 14)
 
@@ -353,6 +405,8 @@ func _morir() -> void:
 	if cs:
 		cs.set_deferred("disabled", true)
 	puntos_vida.visible = false
+	mareo.visible = false
+	hielo.visible = false
 	Game.register_enemy(es_jefe)
 	Formas.estallido(get_parent(), global_position + Vector3(0, 0.8 * escala, 0), Color(0.65, 0.25, 1.0), 120 if es_jefe else 50, 0.1 * escala)
 	var tw := create_tween()
@@ -366,6 +420,12 @@ func _morir() -> void:
 
 func _process(delta: float) -> void:
 	if modelo == null or estado == Estado.MUERTO:
+		return
+	if mareo.visible:
+		mareo.rotate_y(delta * 5.0)
+	if estado == Estado.CONGELADO:
+		mat_ojos.emission_energy_multiplier = 0.5
+		_mirar_pips()
 		return
 	var vel_h := Vector2(velocity.x, velocity.z).length()
 	var ritmo := clampf(vel_h / maxf(speed, 0.1), 0.0, 1.5)
@@ -402,6 +462,10 @@ func _process(delta: float) -> void:
 		pies[i].position.z = 0.08 + sin(fase) * 0.14 * paso
 		pies[i].position.y = 0.12 + maxf(cos(fase), 0.0) * 0.08 * paso
 
+	_mirar_pips()
+
+
+func _mirar_pips() -> void:
 	if puntos_vida.visible:
 		var cam := get_viewport().get_camera_3d()
 		if cam and not cam.global_position.is_equal_approx(puntos_vida.global_position):
