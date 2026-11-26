@@ -17,6 +17,7 @@ var can_attack := true
 var invulnerable := false
 var knockback := Vector3.ZERO
 var controls_locked := false   # true mientras un lanzador estelar mueve a Lumi
+var en_nave := false           # true mientras Lumi pilota la Nave Estelar
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 
 @onready var spring_arm: SpringArm3D = $SpringArm3D
@@ -35,7 +36,8 @@ func _setup_inputs() -> void:
 	var keys := {
 		"move_forward": KEY_W, "move_back": KEY_S,
 		"move_left": KEY_A, "move_right": KEY_D,
-		"run": KEY_SHIFT, "attack": KEY_SPACE
+		"run": KEY_SHIFT, "attack": KEY_SPACE,
+		"interact": KEY_E, "disparar": KEY_F
 	}
 	for action in keys:
 		if not InputMap.has_action(action):
@@ -122,11 +124,13 @@ func take_damage(amount: int, from_pos: Vector3) -> void:
 
 func _parpadeo() -> void:
 	# Lumi parpadea mientras es invulnerable
+	if en_nave:
+		return   # va escondida dentro de la nave: la nave hace su propio efecto
 	var tw := create_tween()
 	for i in 5:
 		tw.tween_callback(func(): model.visible = false)
 		tw.tween_interval(0.09)
-		tw.tween_callback(func(): model.visible = true)
+		tw.tween_callback(func(): model.visible = not en_nave)
 		tw.tween_interval(0.09)
 
 func _play(anim_name: String) -> void:
