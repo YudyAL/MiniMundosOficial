@@ -19,6 +19,7 @@ enum Estado { PATRULLA, ALERTA, PERSIGUE, CARGA, EMBESTIDA, ATURDIDO, CONGELADO,
 @export var es_jefe := false
 @export var radio_patrulla := 4.0
 @export var correa := 15.0          # si Lumi se aleja tanto de su hogar, deja de perseguir
+@export var disparos_por_vida := 1  # cuántos láseres de la nave hacen falta para quitar 1 vida
 
 var health := 3
 var player: Node3D
@@ -44,6 +45,7 @@ var alerta: Label3D
 var mareo: Node3D             # estrellitas girando sobre la cabeza
 var hielo: MeshInstance3D     # caparazón de hielo cuando está congelada
 var t_congelado := 0.0
+var golpes_laser := 0
 
 
 func _ready() -> void:
@@ -366,6 +368,34 @@ func on_spin(from_pos: Vector3, push: float) -> void:
 		_morir()
 	elif estado != Estado.CONGELADO:
 		_cambiar(Estado.ATURDIDO)
+
+
+# La llama el Láser Estelar de la nave. No la marea: solo le quita vida.
+func recibir_disparo(danio: int, desde: Vector3) -> void:
+	if estado == Estado.MUERTO:
+		return
+	golpes_laser += 1
+	if golpes_laser < disparos_por_vida:
+		_destello_laser()   # el golpe se nota, pero todavía no le quita vida
+		return
+	golpes_laser = 0
+	health -= danio
+	var away := global_position - desde
+	away.y = 0.0
+	if away.length() > 0.01:
+		empuje = away.normalized() * (0.8 if es_jefe else 3.0)
+	_golpe_visual()
+	_actualizar_vida()
+	if health <= 0:
+		_morir()
+	elif estado == Estado.PATRULLA:
+		_cambiar(Estado.ALERTA)   # si la atacan desde lejos, se da cuenta
+
+
+func _destello_laser() -> void:
+	mat_cuerpo.emission_energy_multiplier = 1.2
+	var tw := create_tween()
+	tw.tween_property(mat_cuerpo, "emission_energy_multiplier", 0.8 if estado == Estado.CONGELADO else 0.0, 0.15)
 
 
 # La llama el Cristal Congelante: la Sombra queda quieta y no hace daño.
