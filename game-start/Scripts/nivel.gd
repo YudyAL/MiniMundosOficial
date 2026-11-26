@@ -14,6 +14,7 @@ const Lanzador = preload("res://Scripts/lanzador_estelar.gd")
 const GranEstrella = preload("res://Scripts/gran_estrella.gd")
 const CristalCongelante = preload("res://Scripts/cristal_congelante.gd")
 const Muro = preload("res://Scripts/muro.gd")
+const NaveEstelar = preload("res://Scripts/nave_estelar.gd")
 const ESCENA_DESTELLO := preload("res://Escenas/Destello.tscn")
 const ESCENA_ENEMIGO := preload("res://Escenas/Enemigo.tscn")
 
@@ -118,7 +119,8 @@ func _construir_nivel() -> void:
 	var pos_estrella := Vector3(0, 0, -1)
 	var pos_jefe := Vector3(2, 0, -6)
 	var lanz_cima := Vector3(-8, 0, 8)
-	var libres_cima := d_cima + e_cima + [pos_estrella, pos_jefe, lanz_cima, Vector3(4, 0, 9),
+	var pos_nave := Vector3(-4, 0, 3)
+	var libres_cima := d_cima + e_cima + [pos_estrella, pos_jefe, lanz_cima, pos_nave, Vector3(4, 0, 9),
 			Vector3(0, 0, 3), Vector3(3, 0, -3), Vector3(-3, 0, -3), Vector3(0, 0, -5), Vector3(-2, 0, 9)]
 	cima.agregar_cristales_grandes(5, libres_cima)
 	cima.poblar(6, ["cristal", "cristal", "pino"], libres_cima, 0.9, 1.3)
@@ -126,6 +128,7 @@ func _construir_nivel() -> void:
 	_enemigos(cima, e_cima)
 	_enemigo(cima.position + pos_jefe, true)
 	_cristal(cima, Vector3(-2, 0, 9))
+	_nave(cima, pos_nave)
 	var estrella := GranEstrella.new()
 	estrella.position = cima.position + pos_estrella
 	add_child(estrella)
@@ -180,6 +183,8 @@ func _enemigo(pos: Vector3, jefe: bool) -> void:
 		e.set("attack_range", 2.6)
 		e.set("radio_patrulla", 3.0)
 		e.set("correa", 12.0)
+		e.set("lanza_fuego", true)
+		e.set("disparos_por_vida", 3)
 	e.position = pos + Vector3(0, 0.2, 0)
 	add_child(e)
 
@@ -188,6 +193,14 @@ func _cristal(isla: IslaFlotante, local: Vector3) -> void:
 	var c := CristalCongelante.new()
 	c.position = isla.position + local
 	add_child(c)
+
+
+func _nave(isla: IslaFlotante, local: Vector3) -> void:
+	var n := NaveEstelar.new()
+	n.position = isla.position + local
+	n.centro_zona = isla.position
+	n.radio_zona = isla.radio - 2.5
+	add_child(n)
 
 
 func _lanzador(pos: Vector3, destino: Vector3, altura: float, color: Color) -> void:

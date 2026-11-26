@@ -5,6 +5,7 @@ extends CharacterBody3D
 # Escena: CharacterBody3D (este script) + CollisionShape3D. El modelo se arma por código.
 
 const Formas = preload("res://Scripts/formas.gd")
+const BolaFuego = preload("res://Scripts/bola_fuego.gd")
 
 enum Estado { PATRULLA, ALERTA, PERSIGUE, CARGA, EMBESTIDA, ATURDIDO, CONGELADO, MUERTO }
 
@@ -20,6 +21,9 @@ enum Estado { PATRULLA, ALERTA, PERSIGUE, CARGA, EMBESTIDA, ATURDIDO, CONGELADO,
 @export var radio_patrulla := 4.0
 @export var correa := 15.0          # si Lumi se aleja tanto de su hogar, deja de perseguir
 @export var disparos_por_vida := 1  # cuántos láseres de la nave hacen falta para quitar 1 vida
+@export var lanza_fuego := false    # el Rey Sombra lanza bolas de fuego
+@export var rango_fuego := 24.0
+@export var cadencia_fuego := 2.2   # segundos entre bolas de fuego
 
 var health := 3
 var player: Node3D
@@ -46,6 +50,7 @@ var mareo: Node3D             # estrellitas girando sobre la cabeza
 var hielo: MeshInstance3D     # caparazón de hielo cuando está congelada
 var t_congelado := 0.0
 var golpes_laser := 0
+var t_fuego := 2.0
 
 
 func _ready() -> void:
@@ -300,6 +305,11 @@ func _physics_process(delta: float) -> void:
 			if t_estado > t_congelado:
 				_descongelar()
 
+	# Rey Sombra: bolas de fuego. Si Lumi va en la nave, se queda quieto apuntándole.
+	if lanza_fuego and _atacar_con_fuego(delta):
+		deseada = Vector3.ZERO
+		_mirar(to_player, delta, 8.0)
+
 	velocity.x = deseada.x + empuje.x
 	velocity.z = deseada.z + empuje.z
 	empuje = empuje.lerp(Vector3.ZERO, minf(8.0 * delta, 1.0))
@@ -368,6 +378,33 @@ func on_spin(from_pos: Vector3, push: float) -> void:
 		_morir()
 	elif estado != Estado.CONGELADO:
 		_cambiar(Estado.ATURDIDO)
+
+
+# Devuelve true si Lumi va en la nave y está a tiro (el jefe se queda quieto).
+func _atacar_con_fuego(delta: float) -> bool:
+	if estado in [Estado.CONGELADO, Estado.ATURDIDO, Estado.CARGA, Estado.EMBESTIDA]:
+		return false
+	t_fuego -= delta
+	var distancia := global_position.distance_to(player.global_position)
+	if distancia > rango_fuego:
+		return false
+	var en_nave := bool(player.get("en_nave"))
+	if not en_nave and distancia < attack_range * 3.0:
+		return false   # si Lumi está cerca en el suelo, prefiere embestir
+	if t_fuego <= 0.0:
+		t_fuego = cadencia_fuego * (0.75 if en_nave else 1.0)
+		_lanzar_bola_fuego()
+	return en_nave
+
+
+func _lanzar_bola_fuego() -> void:
+	var bola := BolaFuego.new()
+	bola.objetivo = player
+	get_parent().add_child(bola)
+	bola.global_position = global_position + Vector3(0, 1.1 * escala, 0) + global_transform.basis.z * 0.8 * escala
+	# Abre la boca y le brillan los ojos al disparar
+	mat_ojos.emission_energy_multiplier = 12.0
+	pivote.scale = Vector3(1.2, 0.85, 1.2)
 
 
 # La llama el Láser Estelar de la nave. No la marea: solo le quita vida.

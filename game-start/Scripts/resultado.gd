@@ -1,6 +1,4 @@
 extends CanvasLayer
-# Pantalla de resultado: victoria o derrota, estadísticas y medalla.
-
 const UI = preload("res://Scripts/estilo_ui.gd")
 const MENU := "res://Escenas/MenuInicio.tscn"
 
